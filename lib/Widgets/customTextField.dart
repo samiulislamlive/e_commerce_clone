@@ -20,6 +20,11 @@ class CustomTextField extends StatelessWidget
   {
     return Container
     (
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
+
     );
   }
 }
