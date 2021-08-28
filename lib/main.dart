@@ -17,6 +17,8 @@ Future<void> main() async
   WidgetsFlutterBinding.ensureInitialized();
 
   EcommerceApp.auth = FirebaseAuth.instance;
+  EcommerceApp.sharedPreferences = await SharedPreferences.getInstance();
+  EcommerceApp.firestore = Firestore.instance;
 
   runApp(MyApp());
 }
@@ -87,6 +89,8 @@ class _SplashScreenState extends State<SplashScreen>
               Text("E-commerce Clone",
               style: TextStyle(
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
               ),),
             ],
           ),

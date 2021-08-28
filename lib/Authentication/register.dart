@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_shop/Widgets/customTextField.dart';
 import 'package:e_shop/DialogBox/errorDialog.dart';
 import 'package:e_shop/DialogBox/loadingDialog.dart';
@@ -36,7 +37,7 @@ class _RegisterState extends State<Register>
           mainAxisSize: MainAxisSize.max,
           children: [
             InkWell(
-              onTap: ()=> print("Selected"),
+              onTap: _selectAndPickImage,
               child: CircleAvatar(
                 radius: _screenwidth*0.15,
                 backgroundColor: Colors.white,
@@ -48,17 +49,164 @@ class _RegisterState extends State<Register>
             ),
             SizedBox(
               height: 8.0,
-            )
+            ),
             Form(
               key: _formkey,
               child: Column(
-                Custom
+                children: [
+                  CustomTextField(
+                    controller: _nameTextEditingController,
+                    data: Icons.person,
+                    hintText: "Name",
+                    isObsecure: false,
+                  ),
+                  CustomTextField(
+                    controller: _emailTextEditingController,
+                    data: Icons.email,
+                    hintText: "Email",
+                    isObsecure: false,
+                  ),
+                  CustomTextField(
+                    controller: _passwordTextEditingController,
+                    data: Icons.person,
+                    hintText: "Password",
+                    isObsecure: true,
+                  ),
+                  CustomTextField(
+                    controller: _cPasswordTextEditingController,
+                    data: Icons.person,
+                    hintText: "Confirm Password",
+                    isObsecure: true,
+                  ),
+                ],
               ),
-            )
+            ),
+            ElevatedButton(
+                onPressed: (){
+                  uploadAndSaveImage();
+                },
+                child: Text(
+                  "Sign Up", style: TextStyle(
+                  color: Colors.white,
+                ),
+                )),
+            SizedBox(
+              height: 30.0,
+            ),
+            Container(
+              height: 4.0,
+              width: _screenwidth*0.8,
+              color: Colors.blue,
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
           ],
         ),
       ),
     );
+
+  }
+  Future<void> _selectAndPickImage() async
+  {
+    _imagefile =await ImagePicker.pickImage(source: ImageSource.gallery);
+  }
+
+  Future<void> uploadAndSaveImage() async
+  {
+    if(_imagefile == null)
+      {
+        showDialog(
+          context: context,
+          builder: (c)
+            {
+              return ErrorAlertDialog(message: "Please Select an Image",);
+            }
+        );
+      }
+    else
+      {
+        _passwordTextEditingController.text == _cPasswordTextEditingController
+            ? _emailTextEditingController.text.isNotEmpty &&
+            _passwordTextEditingController.text.isNotEmpty &&
+            _cPasswordTextEditingController.text.isNotEmpty &&
+            _nameTextEditingController.text.isNotEmpty
+
+            ? uploadToStorage()
+            : displayDialog("Please fill the form")
+            :displayDialog("Password is incorrect");
+      }
+  }
+
+  displayDialog(String msg){
+    showDialog(
+      context: context,
+      builder: (c){
+        return ErrorAlertDialog(message: msg,);
+      }
+    );
+  }
+  uploadToStorage() async {
+    showDialog(
+      context: context,
+      builder: (c){
+        return LoadingAlertDialog(message: "Authentication is on process",);
+      }
+    );
+
+    String imageFileName = DateTime.now().millisecondsSinceEpoch.toString();
+    StorageReference storageReference = FirebaseStorage.instance.ref().child(imageFileName);
+    StorageUploadTask storageUploadTask = storageReference.putFile(_imagefile);
+    StorageTaskSnapshot taskSnapshot = await storageUploadTask.onComplete;
+    await taskSnapshot.ref.getDownloadURL().then((urlImage){
+      userImageUrl = urlImage;
+      _registerUser();
+    });
+  }
+  
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  void _registerUser() async{
+    FirebaseUser firebaseUser;
+    await _auth.createUserWithEmailAndPassword(
+        email: _emailTextEditingController.text.trim(),
+        password: _passwordTextEditingController.text.trim()
+    ).then((auth){
+      firebaseUser = auth.user;
+    }).catchError((error){
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (c)
+          {
+            return ErrorAlertDialog(message: error.message.toString(),);
+          }
+      );
+    });
+
+    if(firebaseUser!=null)
+      {
+        saveUserInfoToFireStore(firebaseUser).then((value){
+          Navigator.pop(context);
+          Route route = MaterialPageRoute(builder:(c) => StoreHome());
+          Navigator.pushReplacement(context, route);
+        });
+      }
+  }
+  Future saveUserInfoToFireStore(FirebaseUser fUser) async
+  {
+    Firestore.instance.collection("users").document(fUser.uid).setData({
+      "uid": fUser.uid,
+      "email": fUser.email,
+      "name": _nameTextEditingController.text.trim(),
+      "url": userImageUrl,
+
+    });
+
+    await EcommerceApp.sharedPreferences.setString(EcommerceApp.userUID, fUser.uid);
+    await EcommerceApp.sharedPreferences.setString(EcommerceApp.userEmail, fUser.email);
+    await EcommerceApp.sharedPreferences.setString(EcommerceApp.userName, _nameTextEditingController.text);
+    await EcommerceApp.sharedPreferences.setString(EcommerceApp.userAvatarUrl, userImageUrl);
+    await EcommerceApp.sharedPreferences.setStringList(EcommerceApp.userCartList, ["garbageValue"]);
   }
 }
 
