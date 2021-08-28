@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "642460291021",
+    "project_id": "shopclone-a7bbc",
+    "storage_bucket": "shopclone-a7bbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642460291021:android:44dee2b802182003c9be84",
+        "android_client_info": {
+          "package_name": "com.samiul.eshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642460291021-pa0i1j7so4c631j07idjj004r1evil6n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYSCXk4I-tulj-tuPoDiX_4ximSD4uIok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642460291021-pa0i1j7so4c631j07idjj004r1evil6n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
