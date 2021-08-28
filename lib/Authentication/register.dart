@@ -126,7 +126,7 @@ class _RegisterState extends State<Register>
       }
     else
       {
-        _passwordTextEditingController.text == _cPasswordTextEditingController
+        _passwordTextEditingController.text == _cPasswordTextEditingController.text
             ? _emailTextEditingController.text.isNotEmpty &&
             _passwordTextEditingController.text.isNotEmpty &&
             _cPasswordTextEditingController.text.isNotEmpty &&
@@ -134,7 +134,7 @@ class _RegisterState extends State<Register>
 
             ? uploadToStorage()
             : displayDialog("Please fill the form")
-            :displayDialog("Password is incorrect");
+            : displayDialog("Password is incorrect");
       }
   }
 
