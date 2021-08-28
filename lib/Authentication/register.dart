@@ -150,7 +150,7 @@ class _RegisterState extends State<Register>
     showDialog(
       context: context,
       builder: (c){
-        return LoadingAlertDialog(message: "Authentication is on process",);
+        return LoadingAlertDialog(message: "Signing Up",);
       }
     );
 
@@ -199,6 +199,7 @@ class _RegisterState extends State<Register>
       "email": fUser.email,
       "name": _nameTextEditingController.text.trim(),
       "url": userImageUrl,
+      EcommerceApp.userCartList: ["garbageValue"]
 
     });
 
